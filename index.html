@@ -492,7 +492,7 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
                (navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2)||
                (navigator.connection&&navigator.connection.saveData);
 
-  var DE=0.035, ctx=cv.getContext("2d",{alpha:false});
+  var DE=0.025, ctx=cv.getContext("2d",{alpha:false});
   var buf=document.createElement("canvas"), bctx=buf.getContext("2d",{alpha:false});
   var W=0,H=0,N=0,img=null,px=null,s=null,e=null;
   var dark=matchMedia("(prefers-color-scheme: dark)").matches;
