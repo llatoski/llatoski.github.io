@@ -557,7 +557,8 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
     if(!vis||document.hidden||t-last<MIN) return;
     last=t; step(0.45); paint();
   }
-  requestAnimationFrame(loop);
+  /* let the page settle before the field starts moving */
+  setTimeout(function(){requestAnimationFrame(loop);},1600);
 
   /* single parallax layer */
   var ticking=false;
