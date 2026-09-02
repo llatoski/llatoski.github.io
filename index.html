@@ -73,7 +73,8 @@ a:hover,a:focus-visible{color:var(--petrol); background-size:100% 2px}
 .hero{position:relative; min-height:100svh; min-height:100vh; display:flex; align-items:flex-end;
   overflow:hidden; isolation:isolate; padding:0 var(--gutter) clamp(2.5rem,7vh,5rem)}
 .field{position:absolute; inset:-12% 0 0 0; z-index:-2; will-change:transform}
-.field canvas{display:block; width:100%; height:100%}
+.field canvas{display:block; width:100%; height:100%; opacity:0; transition:opacity .6s ease}
+.field canvas.on{opacity:1}
 /* no-JS / pre-paint texture: a bare lattice */
 .field{background-color:var(--panel);
   background-image:repeating-linear-gradient(to right,var(--rule) 0 1px,transparent 1px 14px),
@@ -492,30 +493,36 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
                (navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2)||
                (navigator.connection&&navigator.connection.saveData);
 
-  var DE=0.025, ctx=cv.getContext("2d",{alpha:false});
+  var DE=0.010, ctx=cv.getContext("2d",{alpha:false});
   var buf=document.createElement("canvas"), bctx=buf.getContext("2d",{alpha:false});
   var W=0,H=0,N=0,img=null,px=null,s=null,e=null;
   var dark=matchMedia("(prefers-color-scheme: dark)").matches;
   var C=dark?{a:[31,52,60],b:[19,23,25],hot:[168,131,56]}
             :{a:[158,178,180],b:[229,231,223],hot:[201,154,46]};
 
+  /* xorshift32: the inner loop draws three numbers per update, and this is
+     several times cheaper than Math.random there */
+  var rs=(Date.now()^0x9e3779b9)|0; if(rs===0) rs=1;
+  function rint(m){ rs^=rs<<13; rs^=rs>>>17; rs^=rs<<5; return (rs>>>0)%m; }
+  function rflt(){ rs^=rs<<13; rs^=rs>>>17; rs^=rs<<5; return (rs>>>0)*2.3283064365386963e-10; }
+
   function seed(w,h){
     W=w; H=h; N=W*H;
     buf.width=W; buf.height=H;
     img=bctx.createImageData(W,H); px=img.data;
     s=new Int8Array(N); e=new Float32Array(N);
-    for(var i=0;i<N;i++){ s[i]=Math.random()<0.5?0:1; }
+    for(var i=0;i<N;i++){ s[i]=rflt()<0.5?0:1; }
   }
   function step(sweeps){
     var n=(N*sweeps)|0;
     for(var k=0;k<n;k++){
-      var i=(Math.random()*N)|0, x=i%W, y=(i/W)|0, j, r=(Math.random()*4)|0;
+      var i=rint(N), x=i%W, y=(i/W)|0, j, r=rint(4);
       if(r===0) j=y*W+((x+1)%W);
       else if(r===1) j=y*W+((x+W-1)%W);
       else if(r===2) j=((y+1)%H)*W+x;
       else j=((y+H-1)%H)*W+x;
-      if(s[i]===s[j]){ var v=e[i]+DE; e[i]=v>1?1:v; }
-      else if(Math.random()<1-e[i]){ s[i]=s[j]; e[i]=0; }
+      if(s[i]===s[j]){ if(e[i]<1){ var v=e[i]+DE; e[i]=v>1?1:v; } }
+      else if(rflt()<1-e[i]){ s[i]=s[j]; e[i]=0; }
       else { var w=e[i]-DE; e[i]=w<0?0:w; }
     }
   }
@@ -532,33 +539,50 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
     ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality="high";
     ctx.drawImage(buf,0,0,cv.width,cv.height);
   }
+  /* At this reinforcement the domains need time to form, so the field is settled
+     over a handful of frames rather than in one blocking pass, and only shown
+     once it has coarsened. */
+  var SETTLE=420;
+  function warm(left){
+    function tick(){
+      var t0=performance.now();
+      do{ var s=left<4?left:4; step(s); left-=s; }
+      while(left>0 && performance.now()-t0<10);   /* time-boxed: never a long task */
+      if(left>0) requestAnimationFrame(tick);
+      else { paint(); cv.className="on"; begin(); }
+    }
+    requestAnimationFrame(tick);
+  }
   /* keep the cells square: ~21k sites shaped to the hero box */
-  function fit(){
+  function fit(now){
     var r=host.getBoundingClientRect();
     var aw=Math.max(1,r.width), ah=Math.max(1,r.height), k=Math.sqrt(21000/(aw*ah));
     var w=Math.max(48,Math.min(320,Math.round(aw*k))), h=Math.max(48,Math.min(320,Math.round(ah*k)));
     cv.width=Math.max(1,Math.round(Math.min(aw,1500)/3));
     cv.height=Math.max(1,Math.round(Math.min(ah,1500)/3));
-    if(w!==W||h!==H){ seed(w,h); step(Math.min(140,2200000/N)); }
-    paint();
+    if(w===W&&h===H){ paint(); return; }
+    seed(w,h);
+    if(now){ step(SETTLE); paint(); cv.className="on"; begin(); } else warm(SETTLE);
   }
-  addEventListener("resize",function(){clearTimeout(fit._t);fit._t=setTimeout(fit,200)},{passive:true});
+  addEventListener("resize",function(){clearTimeout(fit._t);fit._t=setTimeout(function(){fit(1)},200)},{passive:true});
 
-  fit();   /* seeds the lattice and lets it settle into domains before the first paint */
-
-  if(reduce||lowPower) return;           /* one static frame, then stop */
-
-  var vis=true, last=0, MIN=1000/30;
-  if("IntersectionObserver" in window){
-    new IntersectionObserver(function(es){vis=es[0].isIntersecting;},{threshold:0}).observe(host);
-  }
+  var vis=true, last=0, MIN=1000/30, started=false;
   function loop(t){
     requestAnimationFrame(loop);
     if(!vis||document.hidden||t-last<MIN) return;
     last=t; step(0.45); paint();
   }
-  /* let the page settle before the field starts moving */
-  setTimeout(function(){requestAnimationFrame(loop);},1600);
+  /* the field only starts moving once it has settled, and a beat after that */
+  function begin(){
+    if(started||reduce||lowPower) return;   /* reduced motion keeps the settled frame */
+    started=true;
+    if("IntersectionObserver" in window){
+      new IntersectionObserver(function(es){vis=es[0].isIntersecting;},{threshold:0}).observe(host);
+    }
+    setTimeout(function(){requestAnimationFrame(loop);},500);
+  }
+
+  requestAnimationFrame(function(){fit();});   /* keep the parse task short */
 
   /* single parallax layer */
   var ticking=false;
