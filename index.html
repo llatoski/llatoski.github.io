@@ -511,7 +511,9 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
     buf.width=W; buf.height=H;
     img=bctx.createImageData(W,H); px=img.data;
     s=new Int8Array(N); e=new Float32Array(N);
-    for(var i=0;i<N;i++){ s[i]=rflt()<0.5?0:1; }
+    var i, half=N>>1;
+    for(i=0;i<N;i++) s[i]=i<half?0:1;
+    for(i=N-1;i>0;i--){ var q=rint(i+1), tmp=s[i]; s[i]=s[q]; s[q]=tmp; }
   }
   function step(sweeps){
     var n=(N*sweeps)|0;
@@ -542,21 +544,21 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
   /* At this reinforcement the domains need time to form, so the field is settled
      over a handful of frames rather than in one blocking pass, and only shown
      once it has coarsened. */
-  var SETTLE=420;
+  var SETTLE=240;
   function warm(left){
     function tick(){
-      var t0=performance.now();
-      do{ var s=left<4?left:4; step(s); left-=s; }
-      while(left>0 && performance.now()-t0<10);   /* time-boxed: never a long task */
+      var t0=performance.now(), g=0.05;
+      do{ var s=left<g?left:g; step(s); left-=s; if(g<1) g*=2; }
+      while(left>0 && performance.now()-t0<6);   /* time-boxed: never a long task */
       if(left>0) requestAnimationFrame(tick);
       else { paint(); cv.className="on"; begin(); }
     }
     requestAnimationFrame(tick);
   }
-  /* keep the cells square: ~21k sites shaped to the hero box */
+  /* keep the cells square: ~12k sites shaped to the hero box */
   function fit(now){
     var r=host.getBoundingClientRect();
-    var aw=Math.max(1,r.width), ah=Math.max(1,r.height), k=Math.sqrt(21000/(aw*ah));
+    var aw=Math.max(1,r.width), ah=Math.max(1,r.height), k=Math.sqrt(12000/(aw*ah));
     var w=Math.max(48,Math.min(320,Math.round(aw*k))), h=Math.max(48,Math.min(320,Math.round(ah*k)));
     cv.width=Math.max(1,Math.round(Math.min(aw,1500)/3));
     cv.height=Math.max(1,Math.round(Math.min(ah,1500)/3));
