@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://llatoski.github.io/sitemap.xml
