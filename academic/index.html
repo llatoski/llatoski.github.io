@@ -67,7 +67,7 @@ a:hover,a:focus-visible{color:var(--blue); background-size:100% 2px}
 
 .skip{position:absolute;left:-9999px;top:0;background:var(--panel);color:var(--ink);
   padding:.6rem 1rem;z-index:20}
-.skip:focus{left:.5rem;top:.5rem}
+.skip:focus{left:.75rem;top:3.6rem}
 
 /* ---------------- hero ---------------- */
 .hero{position:relative; min-height:100svh; min-height:100vh; display:flex; align-items:flex-end;
@@ -199,11 +199,23 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
 }
 @media print{.field,.veil,.scroll-cue{display:none}.hero{min-height:0;height:auto;padding-top:2rem}
   .js .reveal{opacity:1;transform:none}.js .sec .label::after{transform:scaleX(1)}}
+.back{position:fixed; top:clamp(.75rem,2vw,1.25rem); left:clamp(.75rem,2vw,1.25rem); z-index:30;
+  display:inline-flex; align-items:center; gap:.5em; padding:.45rem .8rem .45rem .7rem;
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink); background:color-mix(in srgb,var(--bone) 82%,transparent);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  border:1px solid var(--rule); border-radius:2px; background-image:none;
+  transition:border-color .18s ease, color .18s ease}
+.back span{color:var(--red); transition:transform .18s ease}
+.back:hover,.back:focus-visible{color:var(--blue); border-color:var(--blue); background-size:0}
+.back:hover span,.back:focus-visible span{transform:translateX(-3px)}
+@media print{.back{display:none}}
 </style>
 </head>
 <body>
 <a class="skip" href="#about">Skip to content</a>
 
+<a class="back" href="../" aria-label="Back to home"><span aria-hidden="true">←</span>Back</a>
 <header class="hero">
   <div class="field" id="field" aria-hidden="true"><canvas id="pvm"></canvas></div>
   <div class="veil" aria-hidden="true"></div>
