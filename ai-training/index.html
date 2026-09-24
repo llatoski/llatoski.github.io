@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Training — Luís Latoski</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#eeefe9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101315" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="../favicon.png" sizes="32x32">
+<style>
+@font-face{font-family:Newsreader;src:url(../fonts/newsreader-sub.woff2)format("woff2");font-weight:300 600;font-style:normal;font-display:swap}
+@font-face{font-family:"Plex Sans";src:url(../fonts/plexsans-sub.woff2)format("woff2");font-weight:400 600;font-style:normal;font-display:swap}
+@font-face{font-family:"Plex Mono";src:url(../fonts/plexmono-sub.woff2)format("woff2");font-weight:400;font-style:normal;font-display:swap}
+
+:root{
+  --bone:#eeefe9; --panel:#e6e8e0; --ink:#14181b; --slate:#5a646a;
+  --rule:#d3d7cd; --petrol:#17434f; --amber:#b98a25; --amber-soft:#c99a2e;
+  --serif:Newsreader,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:"Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:"Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --gutter:clamp(1rem,5vw,4.5rem);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bone:#101315;--panel:#171b1e;--ink:#e7e9e2;--slate:#9aa39f;
+        --rule:#2a3033;--petrol:#8fb6c1;--amber:#d9ae4f;--amber-soft:#d9ae4f}
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--bone); color:var(--ink);
+  font-family:var(--sans); font-size:1.0625rem; line-height:1.6;
+  text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--amber); outline-offset:4px; border-radius:1px}
+::selection{background:var(--amber-soft); color:#14181b}
+
+.stage{position:relative; min-height:100svh; min-height:100vh; display:flex; align-items:center;
+  overflow:hidden; isolation:isolate; padding:clamp(2.5rem,8vh,5rem) var(--gutter)}
+.field{position:absolute; inset:0; z-index:-2;
+  background-color:var(--panel);
+  background-image:repeating-linear-gradient(to right,var(--rule) 0 1px,transparent 1px 14px),
+                   repeating-linear-gradient(to bottom,var(--rule) 0 1px,transparent 1px 14px)}
+.field canvas{display:block; width:100%; height:100%; opacity:0; transition:opacity .6s ease}
+.field canvas.on{opacity:1}
+.veil{position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:radial-gradient(ellipse 80% 70% at 50% 55%,rgba(238,239,233,.96) 0%,rgba(238,239,233,.86) 45%,rgba(238,239,233,.35) 100%)}
+@media (prefers-color-scheme:dark){
+  .veil{background:radial-gradient(ellipse 80% 70% at 50% 55%,rgba(16,19,21,.96) 0%,rgba(16,19,21,.86) 45%,rgba(16,19,21,.38) 100%)}
+}
+
+.inner{max-width:52rem; width:100%; margin:0 auto; text-align:center}
+.eyebrow{font-family:var(--mono); font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--slate); margin:0 0 1.4rem}
+h1{font-family:var(--serif); font-weight:300; font-size:clamp(2.4rem,7vw,4.75rem);
+  line-height:1; letter-spacing:-.022em; margin:0}
+h1 .given{display:block; color:var(--slate); font-size:.46em; letter-spacing:.01em;
+  font-weight:400; line-height:1.2; margin-bottom:.3em}
+.prompt{margin:clamp(1.6rem,4vh,2.4rem) 0 clamp(1.6rem,4vh,2.6rem); color:var(--slate); font-size:1rem}
+
+.choices{display:grid; grid-template-columns:1fr 1fr; gap:clamp(.9rem,2.5vw,1.5rem)}
+.choice{position:relative; display:block; text-align:left; color:var(--ink); text-decoration:none;
+  background:color-mix(in srgb,var(--bone) 88%,transparent);
+  border:1px solid var(--rule); border-radius:2px;
+  padding:clamp(1.4rem,3.5vw,2.1rem) clamp(1.2rem,3vw,1.8rem) clamp(1.3rem,3vw,1.8rem);
+  transition:border-color .18s ease, transform .18s ease, box-shadow .18s ease}
+.choice::before{content:""; position:absolute; left:clamp(1.2rem,3vw,1.8rem); top:-1px;
+  width:2.2rem; height:2px; background:var(--amber); transition:width .25s ease}
+.choice:hover,.choice:focus-visible{border-color:var(--petrol); transform:translateY(-2px);
+  box-shadow:0 10px 28px -18px rgba(20,24,27,.45)}
+.choice:hover::before,.choice:focus-visible::before{width:calc(100% - 2*clamp(1.2rem,3vw,1.8rem))}
+.choice .tag{display:block; font-family:var(--mono); font-size:.68rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--slate); margin-bottom:.8rem}
+.choice .name{display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
+  font-family:var(--serif); font-weight:400; font-size:clamp(1.55rem,3.4vw,2.1rem);
+  line-height:1.15; letter-spacing:-.012em}
+.choice .arrow{color:var(--amber); font-family:var(--sans); font-size:.8em; transition:transform .18s ease}
+.choice:hover .arrow,.choice:focus-visible .arrow{transform:translateX(4px)}
+.choice .desc{display:block; margin-top:.6rem; font-size:.9375rem; color:var(--slate)}
+@media (max-width:620px){
+  .choices{grid-template-columns:1fr}
+  .eyebrow{font-size:.62rem; letter-spacing:.13em}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important; transition-duration:.001ms!important}
+}
+
+.back{display:inline-block; margin-top:2rem; font-family:var(--mono); font-size:.72rem;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--slate); text-decoration:none}
+.back:hover,.back:focus-visible{color:var(--petrol)}
+.back span{color:var(--amber); margin-right:.5em}
+</style>
+</head>
+<body>
+<main class="stage">
+  <div class="field" aria-hidden="true"></div>
+  <div class="veil" aria-hidden="true"></div>
+  <div class="inner">
+    <p class="eyebrow">AI Training</p>
+    <h1><span class="given">Luís Carlos Fagundes</span>Latoski</h1>
+    <p class="prompt">This page is being written. Check back soon.</p>
+    <a class="back" href="../"><span aria-hidden="true">←</span>Back</a>
+  </div>
+</main>
+</body>
+</html>
