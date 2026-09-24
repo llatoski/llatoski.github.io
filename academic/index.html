@@ -226,12 +226,104 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
 .totop:hover,.totop:focus-visible{color:var(--blue); border-color:var(--blue); background-size:0}
 .totop:hover span,.totop:focus-visible span{transform:translateY(-3px)}
 @media print{.totop{display:none}}
+
+/* page index: fixed sidebar on wide screens, drawer below 1100px */
+:root{--toc-w:15rem}
+.toc{position:fixed; top:0; left:0; bottom:0; width:var(--toc-w); z-index:25;
+  display:flex; flex-direction:column; gap:1.8rem; overflow-y:auto; overscroll-behavior:contain;
+  padding:4.8rem 1.4rem 1.6rem 1.5rem; background:var(--bone); border-right:1px solid var(--rule)}
+.toc a{background-image:none}
+.toc-name{margin:0; font-family:var(--serif); font-size:1.12rem; line-height:1.2; letter-spacing:-.01em}
+.toc-kind{margin:.35rem 0 0; font-family:var(--mono); font-size:.64rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--slate)}
+.toc-list,.toc-list ol{list-style:none; margin:0; padding:0}
+.toc-list a{display:block; padding:.34rem 0 .34rem .85rem; border-left:2px solid var(--rule);
+  font-size:.9rem; line-height:1.35; color:var(--slate); transition:color .15s ease, border-color .15s ease}
+.toc-list ol a{padding-left:1.7rem; font-size:.8rem}
+.toc-list a:hover,.toc-list a:focus-visible{color:var(--ink)}
+.toc-list a[aria-current="true"]{color:var(--ink); border-left-color:var(--red); font-weight:500}
+.toc-list li.in > a:not([aria-current]){color:var(--ink)}
+.toc-foot{margin-top:auto; display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; font-family:var(--mono);
+  font-size:.66rem; letter-spacing:.16em; text-transform:uppercase}
+.toc-foot a{color:var(--slate)}
+.toc-foot a:hover,.toc-foot a:focus-visible{color:var(--blue)}
+.toc-close,.toc-toggle{font:inherit; cursor:pointer}
+.toc-close{display:none}
+.toc-toggle{display:none}
+.toc-scrim{display:none}
+@media (min-width:1100px){
+  body{padding-left:var(--toc-w)}
+}
+@media (max-width:1099.98px){
+  .toc{display:none}
+  .js .toc{display:flex; z-index:45; width:min(19rem,86vw); padding-top:1.3rem;
+    transform:translateX(-100%); visibility:hidden;
+    transition:transform .28s cubic-bezier(.2,.6,.3,1), visibility 0s linear .28s;
+    box-shadow:0 0 40px -10px rgba(0,0,0,.35)}
+  .js .toc.open{transform:none; visibility:visible; transition:transform .28s cubic-bezier(.2,.6,.3,1)}
+  .js .toc-close{display:inline-flex; align-self:flex-start; align-items:center; gap:.5em;
+    padding:.45rem .8rem .45rem .7rem; background:none; color:var(--ink);
+    border:1px solid var(--rule); border-radius:2px; font-family:var(--mono); font-size:.7rem;
+    letter-spacing:.16em; text-transform:uppercase}
+  .js .toc-close span{color:var(--red); font-size:1rem; line-height:.8}
+  .js .toc-close:hover,.js .toc-close:focus-visible{color:var(--blue); border-color:var(--blue)}
+  .js .toc-toggle{position:fixed; top:clamp(.75rem,2vw,1.25rem); right:clamp(.75rem,2vw,1.25rem); z-index:30;
+    display:inline-flex; align-items:center; gap:.6em; padding:.45rem .8rem .45rem .7rem;
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink); background:color-mix(in srgb,var(--bone) 82%,transparent);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    border:1px solid var(--rule); border-radius:2px; transition:border-color .18s ease, color .18s ease}
+  .js .toc-toggle i{display:block; width:11px; height:1.5px; background:var(--red);
+    box-shadow:0 -4px 0 var(--red),0 4px 0 var(--red)}
+  .js .toc-toggle:hover,.js .toc-toggle:focus-visible{color:var(--blue); border-color:var(--blue)}
+  .js .toc-scrim{display:block; position:fixed; inset:0; z-index:44; background:rgba(8,10,14,.38);
+    opacity:0; visibility:hidden; transition:opacity .28s ease, visibility 0s linear .28s}
+  .js .toc-scrim.on{opacity:1; visibility:visible; transition:opacity .28s ease}
+}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@media print{.toc,.toc-toggle,.toc-scrim{display:none!important} body{padding-left:0!important}}
 </style>
 </head>
 <body id="top">
 <a class="skip" href="#about">Skip to content</a>
 
 <a class="back" href="../" aria-label="Back to home"><span aria-hidden="true">←</span>Back</a>
+<nav class="toc" id="toc" aria-label="Page contents">
+  <button class="toc-close" id="toc-close" type="button" aria-label="Close index"><span aria-hidden="true">×</span>Close</button>
+  <div>
+    <p class="toc-name">Luís C. F. Latoski</p>
+    <p class="toc-kind">Academic</p>
+  </div>
+  <ol class="toc-list">
+      <li><a href="#about">About</a></li>
+      <li><a href="#research">Research</a>
+        <ol>
+          <li><a href="#methods">Methods</a></li>
+        </ol>
+      </li>
+      <li><a href="#publications">Publications</a>
+        <ol>
+          <li><a href="#code">Code</a></li>
+        </ol>
+      </li>
+      <li><a href="#talks">Talks</a>
+        <ol>
+          <li><a href="#schools">Schools and workshops</a></li>
+        </ol>
+      </li>
+      <li><a href="#service">Fellowships and service</a>
+        <ol>
+          <li><a href="#awards">Awards</a></li>
+          <li><a href="#peer-review">Peer review</a></li>
+        </ol>
+      </li>
+      <li><a href="#teaching">Teaching</a></li>
+      <li><a href="#contact">Contact</a></li>
+  </ol>
+  <div class="toc-foot"><a href="../">Home</a><a href="../ai-training/">AI Training</a></div>
+</nav>
+<button class="toc-toggle" id="toc-toggle" type="button" aria-controls="toc" aria-expanded="false"><i aria-hidden="true"></i>Index</button>
+<div class="toc-scrim" id="toc-scrim" aria-hidden="true"></div>
 <header class="hero">
   <div class="field" id="field" aria-hidden="true"><canvas id="pvm"></canvas></div>
   <div class="veil" aria-hidden="true"></div>
@@ -276,7 +368,7 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
           <p class="tags">percolation · metabolic networks · complex systems</p>
         </li>
       </ul>
-      <p class="subhead" role="heading" aria-level="3">Methods</p>
+      <p id="methods" class="subhead" role="heading" aria-level="3">Methods</p>
       <p>Kinetic and stationary Monte Carlo simulation, including Dobrushin boundary conditions, master equations, mean-field closures and coarse-graining, finite-size scaling, percolation analysis and fractal-dimension estimators. Simulations are written in C and C++ with OpenMP, and the analysis in Python.</p>
     </div>
   </section>
@@ -323,7 +415,7 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
           </div>
         </li>
       </ol>
-      <p class="subhead" role="heading" aria-level="3">Code</p>
+      <p id="code" class="subhead" role="heading" aria-level="3">Code</p>
       <p>Simulation code for the cross-feeding percolation work is on <a href="https://github.com/llatoski/crossfeeding-percolation">GitHub</a>.</p>
     </div>
   </section>
@@ -397,7 +489,7 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
           </div>
         </li>
       </ol>
-      <p class="subhead" role="heading" aria-level="3">Schools and workshops attended</p>
+      <p id="schools" class="subhead" role="heading" aria-level="3">Schools and workshops attended</p>
       <ul class="plain">
         <li>
           <p class="ttl">Minicourse on Lattice Models and Applications to Biological Problems</p>
@@ -437,14 +529,14 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
           <p class="sub">2019–2020 · advisor Heitor C. M. Fernandes</p>
         </li>
       </ul>
-      <p class="subhead" role="heading" aria-level="3">Awards</p>
+      <p id="awards" class="subhead" role="heading" aria-level="3">Awards</p>
       <ul class="plain">
         <li>
           <p class="ttl">Distinction in the oral and poster sessions, Computational and Interdisciplinary Physics</p>
           <p class="sub">XXXI Salão de Iniciação Científica · UFRGS · 2019</p>
         </li>
       </ul>
-      <p class="subhead" role="heading" aria-level="3">Peer review</p>
+      <p id="peer-review" class="subhead" role="heading" aria-level="3">Peer review</p>
       <ul class="plain">
         <li>
           <p class="ttl">Humanities and Social Sciences Communications</p>
@@ -755,6 +847,53 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
     history.replaceState(null,"",location.pathname);
   });
   sync();
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+  var toc=document.getElementById("toc"), btn=document.getElementById("toc-toggle"),
+      scrim=document.getElementById("toc-scrim"), shut=document.getElementById("toc-close");
+  if(!toc||!btn) return;
+  var narrow=matchMedia("(max-width: 1099.98px)");
+  function isOpen(){ return toc.classList.contains("open"); }
+  function set(open,refocus){
+    toc.classList.toggle("open",open); scrim.classList.toggle("on",open);
+    btn.setAttribute("aria-expanded",open?"true":"false");
+    if(open){ shut.focus(); }
+    else if(refocus){ btn.focus({preventScroll:true}); }
+  }
+  btn.addEventListener("click",function(){ set(!isOpen(),false); });
+  shut.addEventListener("click",function(){ set(false,true); });
+  scrim.addEventListener("click",function(){ set(false,true); });
+  addEventListener("keydown",function(ev){ if(ev.key==="Escape"&&isOpen()) set(false,true); });
+  toc.addEventListener("click",function(ev){
+    if(ev.target.closest("a")&&narrow.matches&&isOpen()) set(false,false);
+  });
+  narrow.addEventListener("change",function(){ if(!narrow.matches) set(false,false); });
+
+  /* scroll-spy: the current entry is the last target whose top has passed 22% of the viewport */
+  var links=[].slice.call(toc.querySelectorAll('.toc-list a[href^="#"]'));
+  var targets=links.map(function(a){ return document.getElementById(a.getAttribute("href").slice(1)); });
+  var current=null, ticking=false;
+  function spy(){
+    ticking=false;
+    var line=innerHeight*0.22, pick=null;
+    for(var i=0;i<targets.length;i++){
+      if(targets[i]&&targets[i].getBoundingClientRect().top<=line) pick=i;
+    }
+    if(innerHeight+scrollY>=document.documentElement.scrollHeight-2) pick=links.length-1;
+    if(pick===current) return;
+    links.forEach(function(a){ a.removeAttribute("aria-current"); });
+    toc.querySelectorAll("li.in").forEach(function(li){ li.classList.remove("in"); });
+    current=pick;
+    if(pick===null) return;
+    var a=links[pick]; a.setAttribute("aria-current","true");
+    var top=a.closest(".toc-list > li"); if(top) top.classList.add("in");
+  }
+  addEventListener("scroll",function(){ if(!ticking){ ticking=true; requestAnimationFrame(spy); } },{passive:true});
+  addEventListener("resize",spy,{passive:true});
+  spy();
 })();
 </script>
 </body>
