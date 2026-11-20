@@ -374,6 +374,13 @@ footer{border-top:1px solid var(--rule); margin-top:clamp(3rem,8vh,5rem);
           <p>An AI coding agent (Claude Code) wrote most of the code and the reports under these rules. I directed the work and reviewed the results. Five of the six hypotheses failed against simple baselines after costs, and the repository reports each failure. It also scores volatility forecasts for 35 coins and shares out of sample, against an EWMA baseline.</p>
           <p class="tags">pre-registration · backtesting · forecast evaluation · AI coding agent</p>
         </li>
+        <li id="nfse-exportacao-servicos">
+          <h3>nfse-exportacao-servicos</h3>
+          <p class="when">May 2026 · Python · <a href="https://github.com/llatoski/nfse-exportacao-servicos" data-goatcounter-click="open-nfse-exportacao-ai" data-goatcounter-title="AI Training: project nfse-exportacao-servicos">public repository</a></p>
+          <p>A tool that issues Brazilian electronic service invoices (NFS-e) for services exported abroad, from Wise payment receipts, through the national API of the federal government. Each invoice is validated against the official XSD schemas and signed with an XMLDSig signature assembled by hand. It is sent over mutual TLS with an ICP-Brasil certificate. The tool has issued real invoices since May 2026.</p>
+          <p>Each rejection met on the way is recorded in the repository with its error code and its fix. A local interface prepares and signs the whole batch and shows each invoice number and amount for review. Nothing is sent until a person authorises it. The 83 tests run offline against a simulated server.</p>
+          <p class="tags">government API · XML signature · mutual TLS · offline tests</p>
+        </li>
       </ul>
     </div>
   </section>
