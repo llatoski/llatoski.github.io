@@ -94,6 +94,9 @@ h1 .given{display:block; color:var(--slate); font-size:.46em; letter-spacing:.01
 .choice .arrow{color:var(--red); font-family:var(--sans); font-size:.8em; transition:transform .18s ease}
 .choice:hover .arrow,.choice:focus-visible .arrow{transform:translateX(4px)}
 .choice .desc{display:block; margin-top:.6rem; font-size:.9375rem; color:var(--slate)}
+.project{margin-top:clamp(.9rem,2.5vw,1.5rem);
+  padding-top:clamp(1rem,2.5vw,1.4rem); padding-bottom:clamp(1rem,2.5vw,1.3rem)}
+.project .name{font-size:clamp(1.25rem,2.6vw,1.55rem)}
 @media (max-width:620px){
   .choices{grid-template-columns:1fr}
   .eyebrow{font-size:.62rem; letter-spacing:.13em}
@@ -123,6 +126,11 @@ h1 .given{display:block; color:var(--slate); font-size:.46em; letter-spacing:.01
         <span class="desc">Statistical physics, publications and CV.</span>
       </a>
     </nav>
+    <a class="choice project" href="https://github.com/llatoski/LatinTradingNetwork-public" data-goatcounter-click="open-latintradingnetwork" data-goatcounter-title="Landing: project LatinTradingNetwork">
+      <span class="tag">Project</span>
+      <span class="name">LatinTradingNetwork <span class="arrow" aria-hidden="true">→</span></span>
+      <span class="desc">Pre-registered trend following on Bitcoin and Ether, with volatility forecasts scored out of sample.</span>
+    </a>
   </div>
 </main>
 <script>
